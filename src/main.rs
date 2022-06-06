@@ -60,8 +60,8 @@ pub struct Arguments {
     rzd: Vec<PathBuf>,
 
     #[clap(long)]
-    /// Whether we shouls consider complements while parsing rules.
-    /// Note: Complements are `www.example.org` if `examplr.org` os given - and
+    /// Whether we d consider complements while parsing rules.
+    /// Note: Complements are `www.example.org` if `example.org` os given - and
     /// vice-versa.
     allow_complements: bool,
 }
