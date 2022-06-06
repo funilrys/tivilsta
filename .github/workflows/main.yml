@@ -3,11 +3,11 @@ on:
   push:
     branches:
       - "**"
+    tags:
+      - v*
   pull_request:
     branches:
       - "**"
-  tags:
-    - v*.*.*
 
 jobs:
   check_pkg:
