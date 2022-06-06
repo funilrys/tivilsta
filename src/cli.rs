@@ -19,11 +19,11 @@
 //      limitations under the License.
 
 use crate::Arguments;
-use tivilsta::Ruler;
 use std::fs;
 use std::io::{BufRead, BufReader, Write};
 use std::{fs::File, path::PathBuf};
 use tempfile::NamedTempFile;
+use tivilsta::Ruler;
 
 #[derive(Debug)]
 struct CLIHandlerSettings {

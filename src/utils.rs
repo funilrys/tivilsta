@@ -18,7 +18,7 @@
 //      See the License for the specific language governing permissions and
 //      limitations under the License.
 
-use fancy_regex;
+use fancy_regex::escape as regex_escape;
 
 pub fn fetch_json(
     url: String,
@@ -40,7 +40,7 @@ pub fn to_regex_string(extensions: Result<Vec<String>, Box<dyn std::error::Error
     let result = extensions
         .unwrap()
         .iter()
-        .map(|ext| format!(r"((?:\.(?:{})))", fancy_regex::escape(ext)))
+        .map(|ext| format!(r"((?:\.(?:{})))", regex_escape(ext)))
         .collect::<Vec<String>>()
         .join("|");
 

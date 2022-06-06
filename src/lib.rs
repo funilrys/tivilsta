@@ -53,7 +53,7 @@ impl Ruler {
             regex: String::from(""),
             compiled_regex: Regex::new("").unwrap(),
             settings: RulerSettings {
-                handle_complement: handle_complement,
+                handle_complement,
                 extensions: vec![],
             },
         }
