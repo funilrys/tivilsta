@@ -5,6 +5,13 @@ for blocklist maintainers.
 
 # Table of Content
 
+- [The Format](#the-format)
+  - [Introduction](#introduction)
+  - [The flags](#the-flags)
+    - [No Flag: The purest rule](#no-flag-the-purest-rule)
+    - [`ALL `: The "ends-with" rule](#all--the-ends-with-rule)
+    - [`REG `: The regular expression rule](#reg--the-regular-expression-rule)
+    - [`RZD `: The broad and powerful rule](#rzd--the-broad-and-powerful-rule)
 - [Usage & Examples](#usage--examples)
   - [Library](#library)
   - [CLI](#cli)
@@ -12,6 +19,91 @@ for blocklist maintainers.
     - [Help Output](#help-output)
     - [Simple whitelisting example](#simple-whitelisting-example)
 - [License](#license)
+
+# The Format
+
+## Introduction
+
+In a world where blocklists and whitelist lists are getting bigger and bigger,
+the whitelisting mechanism we all use is still the same: list all whitelisted
+domains and use some kind of shell magic to processed the whitelisting.
+
+What if we want more ? That's what Tivilsta tries to provide: A better way of
+writing whitelist list.
+
+With Tivilsta you still have 1 domain per line but you also get some nice features
+like for example regular expression _(regex)_. In fact, the Tivilsta project
+the same set of of "pure" rule that you know but also some flags like `ALL `,
+`REG ` or `RDZ ` to fulfill many possible use cases that list maintainer may
+need during the whitelisting process.
+
+## The flags
+
+Tivilsta provides a set of flags to make whitelist maintenance easier.
+
+
+### No Flag: The purest rule
+
+This is the purest of all rules. It is what we all know an cherish. The single
+line without any flag.
+
+```
+example.org
+```
+
+In this example, any subject of your source file that literally matches `example.org`
+will be whitelisted.
+
+### `ALL `: The "ends-with" rule
+
+Sometime when working with highly volatile dataset, you may want to whitelist
+every subjects that ends with for example `gov.uk`.
+
+With Tivilsta you can do that through the `ALL ` flag.
+
+```
+ALL .gov.uk
+```
+
+In this example, any subject of your source file that ends with `.gov.uk` -
+`gov.uk` included - will be whitelisted.
+
+### `REG `: The regular expression rule
+
+You are a fan of regex ? We are too! When working with highly volatile dataset,
+we want to simply use a regular expression (short regex) to do the task.
+
+With Tivilsta you can do that through the `REG ` flag.
+
+```
+REG ^(?!.*\.?(watchdog\.ohio|dap\.digitalgov|stats\.ssa|adgallery\.whitehousedrugpolicy)).*\.gov$
+```
+
+In this example, any subject of your source file that ends with `.gov` will be
+whitelisted except the following:
+
+- `watchdog.ohio.gov`
+- `dap.digitalgov.gov`
+- `stats.ssa.gov`
+- `adgallery.whiteshousedrugpolicy.gov`
+
+### `RZD `: The broad and powerful rule
+
+Have you ever wondered if it is possible to somehow whitelist all combination of
+a company name with all possible Top Level Domain ?
+
+With Tivilsta you can do that through the `RDZ ` flag. This flag is extremely
+broad and powerful as it will fetch the
+[IANA Root Zone Database](https://www.iana.org/domains/root/db) and the
+[Public Suffix List](https://publicsuffix.org/)
+to build a set of rules with all possible TDL or extensions - if you prefer.
+
+```
+RZD example
+```
+
+In this example, any subject matching `example.[TLD]` will be whitelisted.
+
 
 # Usage & Examples
 
@@ -90,8 +182,8 @@ USAGE:
 OPTIONS:
         --all <ALL>                A whitelisting schema/file to read. Each rule will be
                                    automatically prefixed with the `ALL ` flag while parsing
-        --allow-complements        Whether we shouls consider complements while parsing rules. Note:
-                                   Complements are `www.example.org` if `examplr.org` os given - and
+        --allow-complements        Whether we should consider complements while parsing rules. Note:
+                                   Complements are `www.example.org` if `example.org` os given - and
                                    vice-versa
     -h, --help                     Print help information
     -o, --output <OUTPUT>          The output file
