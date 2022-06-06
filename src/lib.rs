@@ -443,7 +443,7 @@ impl Ruler {
         match self.ends.entry(ends_skey) {
             Entry::Occupied(entry) => {
                 let mut matching = entry.get().iter().map(|x| line.ends_with(x)).peekable();
-                matching_state = matching.peek().is_some();
+                matching_state = *matching.peek().unwrap();
             }
             Entry::Vacant(_) => matching_state = false,
         }
