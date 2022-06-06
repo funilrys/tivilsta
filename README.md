@@ -5,6 +5,7 @@ for blocklist maintainers.
 
 # Table of Content
 
+- [Installation](#installation)
 - [The Format](#the-format)
   - [Introduction](#introduction)
   - [The flags](#the-flags)
@@ -19,6 +20,17 @@ for blocklist maintainers.
     - [Help Output](#help-output)
     - [Simple whitelisting example](#simple-whitelisting-example)
 - [License](#license)
+
+# Installation
+
+You can install the tivilsta CLI or library through [crates.io](https://crates.io/crates/tivilsta).
+
+```shell
+$ cargo install tivilsta
+
+$ tivilsta -V  ## Assuming that it is in your ${PATH}
+```
+
 
 # The Format
 
