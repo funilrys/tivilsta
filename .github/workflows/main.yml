@@ -4,7 +4,8 @@ on:
     branches:
       - "**"
     tags:
-      - "**"
+      - "v0.*"
+      - "v1.*"
   pull_request:
     branches:
       - "**"
