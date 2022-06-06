@@ -29,10 +29,10 @@ pub fn fetch_json(
     if response.status().is_success() {
         Ok(response)
     } else {
-        return Err(Box::new(std::io::Error::new(
+        Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::NotFound,
             error_message,
-        )));
+        )))
     }
 }
 

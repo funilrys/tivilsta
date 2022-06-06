@@ -26,12 +26,12 @@ use std::collections::HashMap;
 use crate::utils;
 
 fn fetch_mapping() -> Result<reqwest::blocking::Response, Box<dyn std::error::Error>> {
-    return utils::fetch_json(
+    utils::fetch_json(
         String::from(
             "https://raw.githubusercontent.com/PyFunceble/iana/master/iana-domains-db.json",
         ),
         String::from("Failed to fetch IANA extensions. Is GitHub down?"),
-    );
+    )
 }
 
 pub fn extensions() -> Result<Vec<String>, Box<dyn std::error::Error>> {

@@ -98,9 +98,9 @@ impl Ruler {
     }
 
     fn push_strict(&mut self, record: &String) {
-        let (search_key, _) = self.search_keys(&self.reduce(&record));
+        let (search_key, _) = self.search_keys(&self.reduce(record));
 
-        match self.strict.entry(search_key.to_string()) {
+        match self.strict.entry(search_key) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().insert(record.to_string());
             }
@@ -114,9 +114,9 @@ impl Ruler {
     }
 
     fn pull_strict(&mut self, record: &String) {
-        let (search_key, _) = self.search_keys(&self.reduce(&record));
+        let (search_key, _) = self.search_keys(&self.reduce(record));
 
-        match self.strict.entry(search_key.to_string()) {
+        match self.strict.entry(search_key) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().remove(record);
             }
@@ -127,9 +127,9 @@ impl Ruler {
     }
 
     fn push_present(&mut self, record: &String) {
-        let (search_key, _) = self.search_keys(&self.reduce(&record));
+        let (search_key, _) = self.search_keys(&self.reduce(record));
 
-        match self.present.entry(search_key.to_string()) {
+        match self.present.entry(search_key) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().insert(record.to_string());
             }
@@ -143,9 +143,9 @@ impl Ruler {
     }
 
     fn pull_present(&mut self, record: &String) {
-        let (search_key, _) = self.search_keys(&self.reduce(&record));
+        let (search_key, _) = self.search_keys(&self.reduce(record));
 
-        match self.present.entry(search_key.to_string()) {
+        match self.present.entry(search_key) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().remove(record);
             }
@@ -156,9 +156,9 @@ impl Ruler {
     }
 
     fn push_ends(&mut self, record: &String) {
-        let (_, search_key) = self.search_keys(&self.reduce(&record));
+        let (_, search_key) = self.search_keys(&self.reduce(record));
 
-        match self.ends.entry(search_key.to_string()) {
+        match self.ends.entry(search_key) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().insert(record.to_string());
             }
@@ -172,9 +172,9 @@ impl Ruler {
     }
 
     fn pull_ends(&mut self, record: &String) {
-        let (_, search_key) = self.search_keys(&self.reduce(&record));
+        let (_, search_key) = self.search_keys(&self.reduce(record));
 
-        match self.ends.entry(search_key.to_string()) {
+        match self.ends.entry(search_key) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().remove(record);
             }
@@ -186,7 +186,7 @@ impl Ruler {
 
     fn push_regex(&mut self, record: &String) {
         if self.regex.is_empty() {
-            self.regex.push_str(&format!("{}", record));
+            self.regex.push_str(&record.to_string());
         } else {
             self.regex.push_str(&format!("|{}", record));
         }
@@ -217,8 +217,8 @@ impl Ruler {
             return false;
         }
 
-        if record.starts_with(".") {
-            if record.matches(".").count() > 1 {
+        if record.starts_with('.') {
+            if record.matches('.').count() > 1 {
                 if self.settings.handle_complement {
                     self.push_strict(&format!("www.{}", record[1..].to_string()));
                 }
@@ -243,8 +243,8 @@ impl Ruler {
             return false;
         }
 
-        if record.starts_with(".") {
-            if record.matches(".").count() > 1 {
+        if record.starts_with('.') {
+            if record.matches('.').count() > 1 {
                 if self.settings.handle_complement {
                     self.pull_strict(&format!("www.{}", record[1..].to_string()));
                 }
@@ -380,45 +380,45 @@ impl Ruler {
     }
 
     pub fn parse(&mut self, line: &String) {
-        if line.is_empty() || line.starts_with("#") {
+        if line.is_empty() || line.starts_with('#') {
             return;
         }
 
-        let _ = self.parse_all(&line)
-            || self.parse_regex(&line)
-            || self.parse_root_zone_db(&line)
-            || self.parse_plain(&line);
+        let _ = self.parse_all(line)
+            || self.parse_regex(line)
+            || self.parse_root_zone_db(line)
+            || self.parse_plain(line);
     }
 
-    pub fn parse_vec(&mut self, lines: &Vec<String>) {
+    pub fn parse_vec(&mut self, lines: &[String]) {
         for line in lines {
-            self.parse(&line);
+            self.parse(line);
         }
     }
 
     pub fn unparse(&mut self, line: &String) {
-        if line.is_empty() || line.starts_with("#") {
+        if line.is_empty() || line.starts_with('#') {
             return;
         }
 
-        let _ = self.unparse_all(&line)
-            || self.unparse_regex(&line)
-            || self.unparse_root_zone_db(&line)
-            || self.unparse_plain(&line);
+        let _ = self.unparse_all(line)
+            || self.unparse_regex(line)
+            || self.unparse_root_zone_db(line)
+            || self.unparse_plain(line);
     }
 
-    pub fn unparse_vec(&mut self, lines: &Vec<String>) {
+    pub fn unparse_vec(&mut self, lines: &[String]) {
         for line in lines {
-            self.unparse(&line);
+            self.unparse(line);
         }
     }
 
     pub fn is_whitelisted(&mut self, line: &String) -> bool {
-        if line.is_empty() || line.starts_with("#") {
+        if line.is_empty() || line.starts_with('#') {
             return false;
         }
 
-        let (common_skey, ends_skey) = self.search_keys(&self.reduce(&line));
+        let (common_skey, ends_skey) = self.search_keys(&self.reduce(line));
 
         let mut matching_state;
 
@@ -427,11 +427,11 @@ impl Ruler {
             Entry::Vacant(_) => matching_state = false,
         }
 
-        if matching_state == true {
+        if matching_state {
             return true;
         }
 
-        match self.present.entry(common_skey.to_string()) {
+        match self.present.entry(common_skey) {
             Entry::Occupied(entry) => matching_state = entry.get().contains(line),
             Entry::Vacant(_) => matching_state = false,
         }
@@ -452,7 +452,7 @@ impl Ruler {
             return true;
         }
 
-        return !self.regex.is_empty() && self.compiled_regex.is_match(&line[..]).unwrap();
+        !self.regex.is_empty() && self.compiled_regex.is_match(&line[..]).unwrap()
     }
 }
 

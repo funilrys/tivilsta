@@ -26,11 +26,11 @@ use std::collections::HashMap;
 use crate::utils;
 
 fn fetch_mapping() -> Result<reqwest::blocking::Response, Box<dyn std::error::Error>> {
-    return utils::fetch_json(
+    utils::fetch_json(
         "https://raw.githubusercontent.com/PyFunceble/public-suffix/master/public-suffix.json"
             .to_string(),
         "Failed to fetch PSL. Is GitHub down?".to_string(),
-    );
+    )
 }
 
 pub fn extensions() -> Result<Vec<String>, Box<dyn std::error::Error>> {

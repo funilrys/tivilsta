@@ -75,7 +75,7 @@ impl CLIHandler {
             output_given: false,
         };
 
-        settings.output_given = !args.output.is_none();
+        settings.output_given = args.output.is_some();
         paths.source = args.source;
         paths.output = args.output.unwrap_or_default();
 
@@ -114,14 +114,14 @@ impl CLIHandler {
 
         let mut result = CLIHandler {
             source: File::open(&paths.source).unwrap(),
-            whitelist: whitelist,
-            all_prefixed: all_prefixed,
-            reg_prefixed: reg_prefixed,
-            rzd_prefixed: rzd_prefixed,
+            whitelist,
+            all_prefixed,
+            reg_prefixed,
+            rzd_prefixed,
             ruler: Ruler::new(args.allow_complements),
-            settings: settings,
-            tmp: tmp,
-            paths: paths,
+            settings,
+            tmp,
+            paths,
         };
 
         result.load_all();
