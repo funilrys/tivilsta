@@ -108,13 +108,13 @@ With Tivilsta you can do that through the `RDZ ` flag. This flag is extremely
 broad and powerful as it will fetch the
 [IANA Root Zone Database](https://www.iana.org/domains/root/db) and the
 [Public Suffix List](https://publicsuffix.org/)
-to build a set of rules with all possible TDL or extensions - if you prefer.
+to build a set of rules with all possible gTLDs or extensions - if you prefer.
 
 ```
 RZD example
 ```
 
-In this example, any subject matching `example.[TLD]` will be whitelisted.
+In this example, any subject matching `example.[gTLD]` will be whitelisted.
 
 
 # Usage & Examples
