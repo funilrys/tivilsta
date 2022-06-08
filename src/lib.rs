@@ -27,6 +27,8 @@ use fancy_regex::Regex;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 #[derive(Debug)]
 pub struct RulerSettings {
@@ -396,6 +398,15 @@ impl Ruler {
         }
     }
 
+    pub fn parse_file(&mut self, path: &str) {
+        let file = File::open(path).unwrap();
+        let reader = BufReader::new(file);
+
+        for line in reader.lines() {
+            self.parse(&line.unwrap());
+        }
+    }
+
     pub fn unparse(&mut self, line: &String) {
         if line.is_empty() || line.starts_with('#') {
             return;
@@ -410,6 +421,15 @@ impl Ruler {
     pub fn unparse_vec(&mut self, lines: &[String]) {
         for line in lines {
             self.unparse(line);
+        }
+    }
+
+    pub fn unparse_file(&mut self, path: &str) {
+        let file = File::open(path).unwrap();
+        let reader = BufReader::new(file);
+
+        for line in reader.lines() {
+            self.unparse(&line.unwrap());
         }
     }
 
