@@ -154,7 +154,7 @@ jobs:
           target: ${{ matrix.rs_target }}
 
       - name: Install APT dependencies.
-        if: matrix.target == 'x86_64-unknown-linux-musl'
+        if: matrix.rs_target == 'x86_64-unknown-linux-musl'
         run: |
           sudo apt install -y musl-tools
 
