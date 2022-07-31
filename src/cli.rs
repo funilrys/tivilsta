@@ -62,6 +62,26 @@ pub struct CLIHandler {
 }
 
 impl CLIHandler {
+    /// Returns a person with the name given them
+    ///
+    /// # Arguments
+    ///
+    /// * `args` - A set of parsed arguments.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tivilsta::cli::CLIHandler;
+    ///
+    /// let args = Arguments::parse();
+    /// let mut handler = CLIHandler::new(args);
+    ///
+    /// // handler already do this for you. But you can force it to reload all (new?) datasets by doing this.
+    /// handler.load_all();
+    ///
+    /// // Process the whitelisting + output based on all inputs.
+    /// handler.cleanup();
+    /// ```
     pub fn new(args: Arguments) -> CLIHandler {
         let mut paths = CLIHandlerPaths {
             source: PathBuf::new(),
@@ -192,6 +212,11 @@ impl CLIHandler {
         true
     }
 
+    /// Loads all external datasets into the ruler.
+    /// This is done automatically when the handler is created.
+    ///
+    /// However, if you - for example - add a new file you can call this method
+    /// to force it to load and parse your newly added file.
     pub fn load_all(&mut self) -> bool {
         self.load_whitelist()
     }
@@ -226,6 +251,7 @@ impl CLIHandler {
 }
 
 impl Drop for CLIHandler {
+    /// Ensures that all temporary files or downloaded files are cleaned up.
     fn drop(&mut self) {
         for file in &self.paths.tmps {
             let _ = fs::remove_file(file);

@@ -26,23 +26,71 @@ use std::fs::File;
 use std::io;
 use std::path::Path;
 
-fn fetch_file(url: &String, destination: &String) -> Result<String, Box<dyn std::error::Error>> {
+/// A helper function that fetches a remote URL.
+///
+/// # Arguments
+///
+/// * `url` - The URL to fetch.
+///
+/// * `error_message` - A Message to return if the fetch fails.
+///
+/// # Returns
+///
+/// A `reqwest::blocking::Response` object to work with.
+pub fn fetch_url(
+    url: &String,
+    error_message: String,
+) -> Result<reqwest::blocking::Response, Box<dyn std::error::Error>> {
     let response = reqwest::blocking::get(url)?;
 
     if response.status().is_success() {
-        let body = response.text().expect("Invalid body.");
-
-        let mut output_file = File::create(destination).expect("Couldn't create file.");
-        io::copy(&mut body.as_bytes(), &mut output_file).expect("Couldn't write content.");
-        Ok(destination.to_string())
+        Ok(response)
     } else {
         Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::NotFound,
-            "Couldn't fetch file.",
+            error_message,
         )))
     }
 }
 
+/// A function that will fetch the content of the given `url` into the given `destination`.
+///
+/// # Arguments
+///
+/// * `url` - The URL to fetch.
+///
+/// * `destination` - The path to the destination file.
+///
+/// # Returns
+///
+/// The path of the file where the content was copied into.
+pub fn fetch_file(
+    url: &String,
+    destination: &String,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let response = fetch_url(url, String::from("Couldn't reach the remote server."))?;
+
+    let body = response.text().expect("Invalid body.");
+
+    let mut output_file = File::create(destination).expect("Couldn't create file.");
+    io::copy(&mut body.as_bytes(), &mut output_file).expect("Couldn't write content.");
+    Ok(destination.to_string())
+}
+
+/// A function that download a presumed `user_input`.
+///
+/// # Arguments
+///
+/// * `user_input` - The presumed user input.
+/// If it contains `://`, it will be treated as a URL, and downloaded.
+/// Otherwise, the given `user_input` will be the direct return value of this function.
+///
+/// # Returns
+///
+/// A tuple containing the downloaded file and a boolean informing the end-user
+/// whether the the `user_input` was a URL that has been downloaded by this function.
+/// In the later case, a path to a file with a random name will be provided as the
+/// first part or the tuple.
 pub fn download_file(user_input: &String) -> (String, bool) {
     if !user_input.contains("://") {
         return (user_input.clone(), false);
@@ -61,22 +109,14 @@ pub fn download_file(user_input: &String) -> (String, bool) {
     return (fetch_file(user_input, &tmp_path).unwrap_or(tmp_path), true);
 }
 
-pub fn fetch_json(
-    url: String,
-    error_message: String,
-) -> Result<reqwest::blocking::Response, Box<dyn std::error::Error>> {
-    let response = reqwest::blocking::get(url)?;
-
-    if response.status().is_success() {
-        Ok(response)
-    } else {
-        Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            error_message,
-        )))
-    }
-}
-
+/// A function that will escape a given `extensions` before joining them into
+/// a regex in the following format:
+///
+/// ```txt
+/// ((?:\.(?:xx)))|((?:\.(?:yy)))
+///
+/// Where `xx` and `yy` are extensions.
+/// ```
 pub fn to_regex_string(extensions: Result<Vec<String>, Box<dyn std::error::Error>>) -> String {
     let result = extensions
         .unwrap()

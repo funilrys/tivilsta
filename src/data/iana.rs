@@ -25,15 +25,19 @@ use std::collections::HashMap;
 
 use crate::utils;
 
+/// Fetches the IANA registry of the PyFunceble project and provide the `reqwest` response
+/// for other to use.
 fn fetch_mapping() -> Result<reqwest::blocking::Response, Box<dyn std::error::Error>> {
-    utils::fetch_json(
-        String::from(
+    utils::fetch_url(
+        &String::from(
             "https://raw.githubusercontent.com/PyFunceble/iana/master/iana-domains-db.json",
         ),
         String::from("Failed to fetch IANA extensions. Is GitHub down?"),
     )
 }
 
+/// Fetches the IANA registry of the PyFunceble project, parse it and return
+/// all known TLDs.
 pub fn extensions() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let response: Value = fetch_mapping()?.json()?;
     let mut result: Vec<String> = Vec::new();
@@ -44,10 +48,31 @@ pub fn extensions() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     Ok(result)
 }
 
+/// Get all known TLDs and parse them as a huge Regex String with the following
+/// format:
+///
+/// ```txt
+/// ((?:\.(?:com)))|((?:\.(?:de)))
+/// ```
+///
+/// Where `com` and `de` are TLDs.
 pub fn extensions_regex_string() -> String {
     utils::to_regex_string(extensions())
 }
 
+/// Read the IANA registry of the PyFunceble project and return all known
+/// TLDs and their whois server.
+///
+/// The registry is a JSON file that has the following format:
+///
+///
+/// ```json
+/// {
+///     "com": "whois.nic.com"
+/// }
+/// ```
+///
+/// Where `com` is the Top Level Domain (TlD) and `whois.nic.com` is the WHOIS server.
 pub fn extensions_and_whois() -> Result<HashMap<String, Option<String>>, Box<dyn std::error::Error>>
 {
     let response: Value = fetch_mapping()?.json()?;

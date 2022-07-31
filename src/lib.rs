@@ -54,6 +54,60 @@ pub struct Ruler {
 }
 
 impl Ruler {
+    /// Creates a new empty Ruler object.
+    ///
+    /// # Arguments
+    ///
+    /// * `handle_complement` - Whether we should follow and cleanup complements.
+    /// A complement is `www.example.org` if `example.org` has been given - and vice-versa.
+    ///
+    /// # Returns
+    ///
+    /// A new Ruler object.
+    ///
+    /// # Example
+    ///
+    /// ### Parsing a vector
+    ///
+    /// ```rust
+    /// use tivilsta::Ruler;
+    ///
+    /// let mut ruler = Ruler::new(false);
+    ///
+    /// let my_subjects: Vec<String> = vec![
+    ///     String::from("example.com"),
+    ///     String::from("example.org"),
+    ///     String::from("api.example.org"),
+    ///     String::from("test.example.com"),
+    /// ];
+    ///
+    /// let whitelisting_rules: Vec<String> = vec![
+    ///     String::from("api.example.org"),
+    ///     String::from("ALL .com"),
+    /// ];
+    ///
+    /// // Check that no rule is loaded.
+    /// assert_eq!(ruler.is_whitelisted(&String::from("example.com")), false);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("example.org")), false);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("api.example.com")), false);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("test.example.com")), false);
+    ///
+    /// // Let's parse our rules.
+    /// ruler.parse_vec(&whitelisting_rules);
+    ///
+    /// assert_eq!(ruler.is_whitelisted(&String::from("example.com")), true);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("example.org")), false);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("api.example.com")), true);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("test.example.com")), true);
+    ///
+    /// // Let's unparse our rules.
+    /// ruler.unparse_vec(&whitelisting_rules);
+    ///
+    /// assert_eq!(ruler.is_whitelisted(&String::from("example.com")), false);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("example.org")), false);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("api.example.com")), false);
+    /// assert_eq!(ruler.is_whitelisted(&String::from("test.example.com")), false);
+    /// ```
     pub fn new(handle_complement: bool) -> Ruler {
         Ruler {
             strict: HashMap::new(),
@@ -391,6 +445,15 @@ impl Ruler {
         true
     }
 
+    /// Parses the given String into the ruler.
+    ///
+    /// # Arguments
+    ///
+    /// * `line` - The line to parse.
+    ///
+    /// # Returns
+    ///
+    /// Nothing.
     pub fn parse(&mut self, line: &String) {
         if line.is_empty() || line.starts_with('#') {
             return;
@@ -402,12 +465,30 @@ impl Ruler {
             || self.parse_plain(line);
     }
 
+    /// Parses the given Vector of Strings into the ruler.
+    ///
+    /// # Arguments
+    ///
+    /// * `lines` - The lines to parse.
+    ///
+    /// # Returns
+    ///
+    /// Nothing.
     pub fn parse_vec(&mut self, lines: &[String]) {
         for line in lines {
             self.parse(line);
         }
     }
 
+    /// Parses the content of the given file into the ruler.
+    ///
+    /// # Arguments
+    ///
+    /// * `file` - The file to parse.
+    ///
+    /// # Returns
+    ///
+    /// Nothing.
     pub fn parse_file(&mut self, path: &str) {
         let file = File::open(path).unwrap();
         let reader = BufReader::new(file);
@@ -417,6 +498,15 @@ impl Ruler {
         }
     }
 
+    /// Parses the content of the given URL (after downloading it) into the ruler.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to download and parse.
+    ///
+    /// # Returns
+    ///
+    /// Nothing.
     pub fn parse_link(&mut self, url: &str) {
         let (real_path, downloaded) = utils::download_file(&url.to_string());
 
@@ -427,6 +517,15 @@ impl Ruler {
         self.parse_file(real_path.as_str());
     }
 
+    /// Unparses the given String into the ruler.
+    ///
+    /// # Arguments
+    ///
+    /// * `line` - The line to parse.
+    ///
+    /// # Returns
+    ///
+    /// Nothing.
     pub fn unparse(&mut self, line: &String) {
         if line.is_empty() || line.starts_with('#') {
             return;
@@ -438,12 +537,30 @@ impl Ruler {
             || self.unparse_plain(line);
     }
 
+    /// Unparses the given Vector of Strings into the ruler.
+    ///
+    /// # Arguments
+    ///
+    /// * `lines` - The lines to parse.
+    ///
+    /// # Returns
+    ///
+    /// Nothing.
     pub fn unparse_vec(&mut self, lines: &[String]) {
         for line in lines {
             self.unparse(line);
         }
     }
 
+    /// Unparses the content of the given file into the ruler.
+    ///
+    /// # Arguments
+    ///
+    /// * `file` - The file to parse.
+    ///
+    /// # Returns
+    ///
+    /// Nothing.
     pub fn unparse_file(&mut self, path: &str) {
         let file = File::open(path).unwrap();
         let reader = BufReader::new(file);
@@ -453,6 +570,15 @@ impl Ruler {
         }
     }
 
+    /// Unparses the content of the given URL (after downloading it) into the ruler.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to download and parse.
+    ///
+    /// # Returns
+    ///
+    /// Nothing.
     pub fn unparse_link(&mut self, url: &str) {
         let (real_path, downloaded) = utils::download_file(&url.to_string());
 
@@ -463,6 +589,17 @@ impl Ruler {
         self.unparse_file(real_path.as_str());
     }
 
+    /// Checks the given `line` against the rules.
+    ///
+    /// # Arguments
+    ///
+    /// * `line` - The line to check.
+    ///
+    /// # Returns
+    ///
+    /// A `bool` indicating whether the line matches the rules.
+    /// Any `true` value should be considered positive.
+    /// Meaning that the line matches one of the rule.
     pub fn is_whitelisted(&mut self, line: &String) -> bool {
         if line.is_empty() || line.starts_with('#') {
             return false;
@@ -493,7 +630,7 @@ impl Ruler {
         match self.ends.entry(ends_skey) {
             Entry::Occupied(entry) => {
                 let mut matching = entry.get().iter().map(|x| line.ends_with(x)).peekable();
-                matching_state = *matching.peek().unwrap();
+                matching_state = *matching.peek().unwrap_or(&false);
             }
             Entry::Vacant(_) => matching_state = false,
         }

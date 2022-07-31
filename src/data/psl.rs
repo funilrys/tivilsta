@@ -25,14 +25,19 @@ use std::collections::HashMap;
 
 use crate::utils;
 
+/// Fetches the PSL registry of the PyFunceble project and provide the `reqwest` response
+/// for other to use.
 fn fetch_mapping() -> Result<reqwest::blocking::Response, Box<dyn std::error::Error>> {
-    utils::fetch_json(
-        "https://raw.githubusercontent.com/PyFunceble/public-suffix/master/public-suffix.json"
-            .to_string(),
+    utils::fetch_url(
+        &String::from(
+            "https://raw.githubusercontent.com/PyFunceble/public-suffix/master/public-suffix.json",
+        ),
         "Failed to fetch PSL. Is GitHub down?".to_string(),
     )
 }
 
+/// Fetches the PSL registry of the PyFunceble project, parse it and return
+/// all known TLDs.
 pub fn extensions() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let response: Value = fetch_mapping()?.json()?;
     let mut result: Vec<String> = Vec::new();
@@ -43,6 +48,8 @@ pub fn extensions() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     Ok(result)
 }
 
+/// Fetches the PSL registry of the PyFunceble project, parse it and return
+/// all known public suffixes.
 pub fn suffixes() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let response: Value = fetch_mapping()?.json()?;
     let mut result: Vec<String> = Vec::new();
@@ -55,13 +62,45 @@ pub fn suffixes() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     Ok(result)
 }
 
+/// Get all known suffixes and parse them as a huge Regex String with the following
+/// format:
+///
+/// ```txt
+/// ((?:\.(?:\.co\.uk)))|((?:\.(?:de.example)))
+/// ```
+///
+/// Where `co.uk` and `de.example` are suffixes.
 pub fn suffixes_regex_string() -> String {
     utils::to_regex_string(suffixes())
 }
 
+/// Get all known suffixes and parse them as a huge Regex String with the following
+/// format:
+///
+/// ```txt
+/// ((?:\.(?:com)))|((?:\.(?:de)))
+/// ```
+///
+/// Where `com` and `de` are TLDs.
 pub fn extensions_regex_string() -> String {
     utils::to_regex_string(extensions())
 }
+
+/// Read the IANA registry of the PyFunceble project and return all known
+/// TLDs and their whois server.
+///
+/// The registry is a JSON file that has the following format:
+///
+/// ```json
+/// {
+///     "com": {
+///         "xx.com",
+///         "xy.com"
+///     }
+/// }
+/// ```
+///
+/// Where `com` is the Top Level Domain (TlD) and `xx.com`+`xy.com` public suffixes.
 
 pub fn extensions_and_suffixes() -> Result<HashMap<String, Vec<String>>, Box<dyn std::error::Error>>
 {
