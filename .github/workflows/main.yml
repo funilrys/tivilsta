@@ -186,7 +186,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
 
         run: |
-          previousTag=$(git tag --sort=-creatordate | grep -A 1 second | tail -n 1)
+          previousTag=$(git tag --sort=-creatordate | head -n 2 | tail -n 1)
 
           if [[ -z "${previousTag}" ]]
           then
@@ -198,5 +198,5 @@ jobs:
       - name: Publish GitHub Release for ${{ matrix.rs_target }}
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ matrix.pkg_name }}
+          files: ../../../tivilsta-**
           body_path: RELEASE.md
