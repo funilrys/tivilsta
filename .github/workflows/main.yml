@@ -198,5 +198,5 @@ jobs:
       - name: Publish GitHub Release for ${{ matrix.rs_target }}
         uses: softprops/action-gh-release@v1
         with:
-          files: ../../../tivilsta-**
+          files: target/**/release/*
           body_path: RELEASE.md
