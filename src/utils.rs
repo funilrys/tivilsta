@@ -19,6 +19,47 @@
 //      limitations under the License.
 
 use fancy_regex::escape as regex_escape;
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
+use std::env;
+use std::fs::File;
+use std::io;
+use std::path::Path;
+
+fn fetch_file(url: &String, destination: &String) -> Result<String, Box<dyn std::error::Error>> {
+    let response = reqwest::blocking::get(url)?;
+
+    if response.status().is_success() {
+        let body = response.text().expect("Invalid body.");
+
+        let mut output_file = File::create(destination).expect("Couldn't create file.");
+        io::copy(&mut body.as_bytes(), &mut output_file).expect("Couldn't write content.");
+        Ok(destination.to_string())
+    } else {
+        Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "Couldn't fetch file.",
+        )))
+    }
+}
+
+pub fn download_file(user_input: &String) -> (String, bool) {
+    if !user_input.contains("://") {
+        return (user_input.clone(), false);
+    }
+
+    let filename: String = thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(30)
+        .map(char::from)
+        .collect();
+
+    let temp_file = Path::new(&env::temp_dir().as_os_str()).join(filename);
+
+    let tmp_path = temp_file.to_str().unwrap().to_string();
+
+    return (fetch_file(user_input, &tmp_path).unwrap_or(tmp_path), true);
+}
 
 pub fn fetch_json(
     url: String,

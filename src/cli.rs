@@ -25,6 +25,8 @@ use std::{fs::File, path::PathBuf};
 use tempfile::NamedTempFile;
 use tivilsta::Ruler;
 
+use crate::utils;
+
 #[derive(Debug)]
 struct CLIHandlerSettings {
     output_given: bool,
@@ -39,10 +41,11 @@ struct CLIHandlerTmp {
 struct CLIHandlerPaths {
     source: PathBuf,
     output: PathBuf,
-    whitelist: Vec<PathBuf>,
-    all_prefixed: Vec<PathBuf>,
-    reg_prefixed: Vec<PathBuf>,
-    rzd_prefixed: Vec<PathBuf>,
+    whitelist: Vec<String>,
+    all_prefixed: Vec<String>,
+    reg_prefixed: Vec<String>,
+    rzd_prefixed: Vec<String>,
+    tmps: Vec<String>,
 }
 
 #[derive(Debug)]
@@ -67,6 +70,7 @@ impl CLIHandler {
             all_prefixed: vec![],
             reg_prefixed: vec![],
             rzd_prefixed: vec![],
+            tmps: vec![],
         };
         let tmp = CLIHandlerTmp {
             output: NamedTempFile::new().unwrap(),
@@ -86,29 +90,53 @@ impl CLIHandler {
 
         if !args.whitelist.is_empty() {
             for file in args.whitelist {
-                whitelist.push(File::open(&file).unwrap());
-                paths.whitelist.push(file.clone());
+                let (path, downloaded) = utils::download_file(&file);
+
+                if downloaded {
+                    paths.tmps.push(path.clone())
+                }
+
+                whitelist.push(File::open(&path).unwrap());
+                paths.whitelist.push(path.clone());
             }
         }
 
         if !args.all.is_empty() {
             for file in args.all {
-                all_prefixed.push(File::open(&file).unwrap());
-                paths.all_prefixed.push(file.clone())
+                let (path, downloaded) = utils::download_file(&file);
+
+                if downloaded {
+                    paths.tmps.push(path.clone())
+                }
+
+                all_prefixed.push(File::open(&path).unwrap());
+                paths.all_prefixed.push(path.clone())
             }
         }
 
         if !args.reg.is_empty() {
             for file in args.reg {
-                reg_prefixed.push(File::open(&file).unwrap());
-                paths.reg_prefixed.push(file.clone())
+                let (path, downloaded) = utils::download_file(&file);
+
+                if downloaded {
+                    paths.tmps.push(path.clone())
+                }
+
+                reg_prefixed.push(File::open(&path).unwrap());
+                paths.reg_prefixed.push(path.clone())
             }
         }
 
         if !args.rzd.is_empty() {
             for file in args.rzd {
-                rzd_prefixed.push(File::open(&file).unwrap());
-                paths.rzd_prefixed.push(file.clone())
+                let (path, downloaded) = utils::download_file(&file);
+
+                if downloaded {
+                    paths.tmps.push(path.clone())
+                }
+
+                rzd_prefixed.push(File::open(&path).unwrap());
+                paths.rzd_prefixed.push(path.clone())
             }
         }
 
@@ -194,5 +222,13 @@ impl CLIHandler {
         }
 
         true
+    }
+}
+
+impl Drop for CLIHandler {
+    fn drop(&mut self) {
+        for file in &self.paths.tmps {
+            let _ = fs::remove_file(file);
+        }
     }
 }

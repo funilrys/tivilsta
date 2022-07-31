@@ -189,23 +189,39 @@ Example for argument with multiple values or files:
 A different whitelisting mechanism for blocklist maintainers.
 
 USAGE:
-    tivilsta [OPTIONS] --source <SOURCE> --whitelist <WHITELIST>
+    tivilsta [OPTIONS] --source <SOURCE> --whitelist <WHITELIST>...
 
 OPTIONS:
-        --all <ALL>                A whitelisting schema/file to read. Each rule will be
-                                   automatically prefixed with the `ALL ` flag while parsing
-        --allow-complements        Whether we should consider complements while parsing rules. Note:
-                                   Complements are `www.example.org` if `example.org` os given - and
-                                   vice-versa
-    -h, --help                     Print help information
-    -o, --output <OUTPUT>          The output file
-        --reg <REG>                A whitelisting schema/file to read. Each rule will be
-                                   automatically prefixed with the `REG ` flag while parsing
-        --rzd <RZD>                A whitelisting schema/file to read. Each rule will be
-                                   automatically prefixed with the `RZD ` flag while parsing
-    -s, --source <SOURCE>          The file to cleanup
-    -V, --version                  Print version information
-    -w, --whitelist <WHITELIST>    A whitelisting schema/file. Each rules will be parsed as-it-is
+        --all <ALL>...                One or multiple space separated whitelisting schema in form of
+                                      a file path or URL to read. Each rule/line will be
+                                      automatically prefixed with the `ALL ` flag while parsing.
+                                      Note: When using a URL, the file will be downloaded and stored
+                                      in a temporary file that will be deleted when the program
+                                      exits
+        --allow-complements           Whether we consider complements while parsing rules. Note:
+                                      Complements are `www.example.org` if `example.org` is given -
+                                      and vice-versa
+    -h, --help                        Print help information
+    -o, --output <OUTPUT>             The output file
+        --reg <REG>...                One or multiple space separated whitelisting schema in form of
+                                      a file path or URL to read. Each rule/line will be
+                                      automatically prefixed with the `REG ` flag while parsing.
+                                      Note: When using a URL, the file will be downloaded and stored
+                                      in a temporary file that will be deleted when the program
+                                      exits
+        --rzd <RZD>...                One or multiple space separated whitelisting schema in form of
+                                      a file path or URL to read. Each rule/line will be
+                                      automatically prefixed with the `RZD ` flag while parsing.
+                                      Note: When using a URL, the file will be downloaded and stored
+                                      in a temporary file that will be deleted when the program
+                                      exits
+    -s, --source <SOURCE>             The file to cleanup
+    -V, --version                     Print version information
+    -w, --whitelist <WHITELIST>...    One or multiple space separated whitelisting schema in form of
+                                      a file path or URL. Each rule/line will be parsed as-it-is.
+                                      Note: When using a URL, the file will be downloaded and stored
+                                      in a temporary file that will be deleted when the program
+                                      exits
 ```
 
 

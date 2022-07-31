@@ -27,6 +27,7 @@ use fancy_regex::Regex;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fs;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -37,6 +38,11 @@ pub struct RulerSettings {
 }
 
 #[derive(Debug)]
+pub struct RulerTmps {
+    downloaded_files: Vec<String>,
+}
+
+#[derive(Debug)]
 pub struct Ruler {
     strict: HashMap<String, HashSet<String>>,
     ends: HashMap<String, HashSet<String>>,
@@ -44,6 +50,7 @@ pub struct Ruler {
     regex: String,
     compiled_regex: Regex,
     settings: RulerSettings,
+    tmps: RulerTmps,
 }
 
 impl Ruler {
@@ -57,6 +64,9 @@ impl Ruler {
             settings: RulerSettings {
                 handle_complement,
                 extensions: vec![],
+            },
+            tmps: RulerTmps {
+                downloaded_files: vec![],
             },
         }
     }
@@ -407,6 +417,16 @@ impl Ruler {
         }
     }
 
+    pub fn parse_link(&mut self, url: &str) {
+        let (real_path, downloaded) = utils::download_file(&url.to_string());
+
+        if downloaded {
+            self.tmps.downloaded_files.push(real_path.clone());
+        }
+
+        self.parse_file(real_path.as_str());
+    }
+
     pub fn unparse(&mut self, line: &String) {
         if line.is_empty() || line.starts_with('#') {
             return;
@@ -431,6 +451,16 @@ impl Ruler {
         for line in reader.lines() {
             self.unparse(&line.unwrap());
         }
+    }
+
+    pub fn unparse_link(&mut self, url: &str) {
+        let (real_path, downloaded) = utils::download_file(&url.to_string());
+
+        if downloaded {
+            self.tmps.downloaded_files.push(real_path.clone());
+        }
+
+        self.unparse_file(real_path.as_str());
     }
 
     pub fn is_whitelisted(&mut self, line: &String) -> bool {
@@ -473,6 +503,14 @@ impl Ruler {
         }
 
         !self.regex.is_empty() && self.compiled_regex.is_match(&line[..]).unwrap()
+    }
+}
+
+impl Drop for Ruler {
+    fn drop(&mut self) {
+        for file in &self.tmps.downloaded_files {
+            let _ = fs::remove_file(file);
+        }
     }
 }
 

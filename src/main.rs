@@ -40,28 +40,38 @@ pub struct Arguments {
     /// The output file.
     output: Option<PathBuf>,
 
-    #[clap(short, long, parse(from_os_str), required = true)]
-    /// A whitelisting schema/file. Each rules will be parsed as-it-is.
-    whitelist: Vec<PathBuf>,
+    #[clap(short, long, min_values = 1, required = true)]
+    /// One or multiple space separated whitelisting schema in form of a file path or URL.
+    /// Each rule/line will be parsed as-it-is.
+    /// Note: When using a URL, the file will be downloaded and stored in a
+    /// temporary file that will be deleted when the program exits.
+    whitelist: Vec<String>,
 
-    #[clap(long, parse(from_os_str), required = false)]
-    /// A whitelisting schema/file to read. Each rule will be automatically prefixed
-    /// with the `ALL ` flag while parsing.
-    all: Vec<PathBuf>,
+    #[clap(long, min_values = 1, required = false)]
+    /// One or multiple space separated whitelisting schema in form of a file path or URL to read.
+    /// Each rule/line will be automatically prefixed with the `ALL ` flag while parsing.
+    /// Note: When using a URL, the file will be downloaded and stored in a
+    /// temporary file that will be deleted when the program exits.
+    all: Vec<String>,
 
-    #[clap(long, parse(from_os_str), required = false)]
-    /// A whitelisting schema/file to read. Each rule will be automatically prefixed
-    /// with the `REG ` flag while parsing.
-    reg: Vec<PathBuf>,
+    #[clap(long, min_values = 1, required = false)]
+    /// One or multiple space separated whitelisting schema in form of a file path or URL to read.
+    /// Each rule/line will be automatically prefixed with the `REG ` flag while parsing.
+    /// Note: When using a URL, the file will be downloaded and stored in a
+    /// temporary file that will be deleted when the program exits.
+    reg: Vec<String>,
 
-    #[clap(long, parse(from_os_str), required = false)]
-    /// A whitelisting schema/file to read. Each rule will be automatically prefixed
-    /// with the `RZD ` flag while parsing.
-    rzd: Vec<PathBuf>,
+    // #[clap(long, parse(from_os_str), required = false)]
+    #[clap(long, min_values = 1, required = false)]
+    /// One or multiple space separated whitelisting schema in form of a file path or URL to read.
+    /// Each rule/line will be automatically prefixed with the `RZD ` flag while parsing.
+    /// Note: When using a URL, the file will be downloaded and stored in a
+    /// temporary file that will be deleted when the program exits.
+    rzd: Vec<String>,
 
     #[clap(long)]
-    /// Whether we d consider complements while parsing rules.
-    /// Note: Complements are `www.example.org` if `example.org` os given - and
+    /// Whether we consider complements while parsing rules.
+    /// Note: Complements are `www.example.org` if `example.org` is given - and
     /// vice-versa.
     allow_complements: bool,
 }
