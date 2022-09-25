@@ -31,7 +31,6 @@ $ cargo install tivilsta
 $ tivilsta -V  ## Assuming that it is in your ${PATH}
 ```
 
-
 # The Format
 
 ## Introduction
@@ -52,7 +51,6 @@ need during the whitelisting process.
 ## The flags
 
 Tivilsta provides a set of flags to make whitelist maintenance easier.
-
 
 ### No Flag: The purest rule
 
