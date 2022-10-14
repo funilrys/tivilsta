@@ -44,7 +44,7 @@ writing whitelist list.
 
 With Tivilsta you still have 1 domain per line but you also get some nice features
 like for example regular expression _(regex)_. In fact, the Tivilsta project
-the same set of of "pure" rule that you know but also some flags like `ALL `,
+has the same set of of "pure" rule that you know but also some flags like `ALL `,
 `REG ` or `RDZ ` to fulfill many possible use cases that list maintainer may
 need during the whitelisting process.
 
