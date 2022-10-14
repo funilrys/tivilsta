@@ -25,6 +25,7 @@ use std::env;
 use std::fs::File;
 use std::io;
 use std::path::Path;
+use urlparse::urlparse;
 
 /// A helper function that fetches a remote URL.
 ///
@@ -128,6 +129,29 @@ pub fn to_regex_string(extensions: Result<Vec<String>, Box<dyn std::error::Error
     result
 }
 
+pub fn extract_netloc(data: &String) -> String {
+    let parsed_url = urlparse(data);
+    let mut result;
+
+    if parsed_url.netloc.is_empty() && !parsed_url.path.is_empty() {
+        result = parsed_url.path.as_str()
+    } else if !parsed_url.netloc.is_empty() {
+        result = parsed_url.netloc.as_str()
+    } else {
+        result = &data.as_str()
+    }
+
+    if result.contains("//") {
+        result = result.split("//").next().unwrap()
+    }
+
+    if result.contains("/") {
+        result = result.split("/").next().unwrap()
+    }
+
+    result.to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -154,5 +178,101 @@ mod tests {
         let expected = "((?:\\.(?:com)))".to_string();
 
         assert_eq!(to_regex_string(given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_empty_str() {
+        let given = "".to_string();
+        let expected = "".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_nothing_to_decode() {
+        let given = "example.org".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_full_url() {
+        let given = "https://example.org/hello/world/this/is/a/test".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_full_url_with_port() {
+        let given = "https://example.org:8080/hello/world/this/is/a/test".to_string();
+        let expected = "example.org:8080".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_full_url_with_params() {
+        let given = "https://example.org/?is_admin=true".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_url_without_scheme() {
+        let given = "example.org/hello/world/this/is/a/test".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_url_without_scheme_and_with_params() {
+        let given = "example.org/?is_admin=true".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_url_without_protocol() {
+        let given = "://example.org/hello/world/this/is/a/test".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_url_without_protocol_and_with_params() {
+        let given = "://example.org/?is_admin=true".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_url_without_protocol_and_path() {
+        let given = "://example.org/".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_url_startswith_2_slashes() {
+        let given = "//example.org/hello/world/this/is/a/test".to_string();
+        let expected = "example.org".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
+    }
+
+    #[test]
+    fn test_extract_netloc_url_startswith_1_slash() {
+        let given = "/example.org/hello/world/this/is/a/test".to_string();
+        let expected = "".to_string();
+
+        assert_eq!(extract_netloc(&given), expected)
     }
 }
