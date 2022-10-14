@@ -25,4 +25,5 @@ serde_json = "1"
 tempfile = "3"
 fancy-regex = "0"
 rand = "0"
+urlparse = "0.7"
 
