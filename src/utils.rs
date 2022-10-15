@@ -129,6 +129,19 @@ pub fn to_regex_string(extensions: Result<Vec<String>, Box<dyn std::error::Error
     result
 }
 
+/// A function that tries to extract the network location of a given URL.
+/// This function may be used when you don't really know what kind of dataset
+/// you injest. This function will check if the given `data` is a URL by parsing
+/// it. If it is not the case, it will just return the given input.
+///
+/// # Arguments
+///
+/// * `data` - The presumed data to extract the netloc from.
+///
+/// # Returns
+///
+/// A string with the extracted network location.
+///
 pub fn extract_netloc(data: &String) -> String {
     let parsed_url = urlparse(data);
     let mut result;
