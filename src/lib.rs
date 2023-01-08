@@ -4,7 +4,7 @@
 //      Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
 //
 // License:
-//      Copyright (c) 2022 Nissar Chababy
+//      Copyright (c) 2022, 2023 Nissar Chababy
 //
 //      Licensed under the Apache License, Version 2.0 (the "License");
 //      you may not use this file except in compliance with the License.
@@ -595,6 +595,9 @@ impl Ruler {
     ///
     /// * `line` - The line to check.
     ///
+    ///   **Note:** If a URL (e.g `https://example.org/`) is given, the sub-domain
+    ///   will be used to determine if the line has been whitelisted.
+    ///
     /// # Returns
     ///
     /// A `bool` indicating whether the line matches the rules.
@@ -605,12 +608,14 @@ impl Ruler {
             return false;
         }
 
-        let (common_skey, ends_skey) = self.search_keys(&self.reduce(line));
+        let fline = utils::extract_netloc(&line);
+
+        let (common_skey, ends_skey) = self.search_keys(&self.reduce(&fline));
 
         let mut matching_state;
 
         match self.strict.entry(common_skey.to_string()) {
-            Entry::Occupied(entry) => matching_state = entry.get().contains(line),
+            Entry::Occupied(entry) => matching_state = entry.get().contains(&fline),
             Entry::Vacant(_) => matching_state = false,
         }
 
@@ -619,7 +624,7 @@ impl Ruler {
         }
 
         match self.present.entry(common_skey) {
-            Entry::Occupied(entry) => matching_state = entry.get().contains(line),
+            Entry::Occupied(entry) => matching_state = entry.get().contains(&fline),
             Entry::Vacant(_) => matching_state = false,
         }
 
@@ -629,7 +634,7 @@ impl Ruler {
 
         match self.ends.entry(ends_skey) {
             Entry::Occupied(entry) => {
-                let mut matching = entry.get().iter().map(|x| line.ends_with(x)).peekable();
+                let mut matching = entry.get().iter().map(|x| fline.ends_with(x)).peekable();
                 matching_state = *matching.peek().unwrap_or(&false);
             }
             Entry::Vacant(_) => matching_state = false,
@@ -639,7 +644,7 @@ impl Ruler {
             return true;
         }
 
-        !self.regex.is_empty() && self.compiled_regex.is_match(&line[..]).unwrap()
+        !self.regex.is_empty() && self.compiled_regex.is_match(&fline[..]).unwrap()
     }
 }
 

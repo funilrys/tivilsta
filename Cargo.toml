@@ -1,6 +1,6 @@
 [package]
 name = "tivilsta"
-version = "0.3.0"
+version = "0.5.0"
 description = "A different whitelisting mechanism for blocklist maintainers."
 
 categories = ["command-line-utilities", "parser-implementations"]
@@ -25,3 +25,4 @@ serde_json = "1"
 tempfile = "3"
 fancy-regex = "0.10"
 rand = "0.8"
+urlparse = "0.7"

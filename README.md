@@ -31,7 +31,6 @@ $ cargo install tivilsta
 $ tivilsta -V  ## Assuming that it is in your ${PATH}
 ```
 
-
 # The Format
 
 ## Introduction
@@ -45,14 +44,13 @@ writing whitelist list.
 
 With Tivilsta you still have 1 domain per line but you also get some nice features
 like for example regular expression _(regex)_. In fact, the Tivilsta project
-the same set of of "pure" rule that you know but also some flags like `ALL `,
+has the same set of of "pure" rule that you know but also some flags like `ALL `,
 `REG ` or `RDZ ` to fulfill many possible use cases that list maintainer may
 need during the whitelisting process.
 
 ## The flags
 
 Tivilsta provides a set of flags to make whitelist maintenance easier.
-
 
 ### No Flag: The purest rule
 
@@ -245,7 +243,7 @@ example.org
 # License
 
 ```
-Copyright (c) 2022 Nissar Chababy
+Copyright (c) 2022, 2023 Nissar Chababy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
