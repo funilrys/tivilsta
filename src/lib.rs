@@ -4,7 +4,7 @@
 //      Nissar Chababy, @funilrys, contactTATAfunilrysTODTODcom
 //
 // License:
-//      Copyright (c) 2022, 2023 Nissar Chababy
+//      Copyright (c) 2022, 2023, 2024 Nissar Chababy
 //
 //      Licensed under the Apache License, Version 2.0 (the "License");
 //      you may not use this file except in compliance with the License.
@@ -593,7 +593,7 @@ impl Ruler {
     ///
     /// # Arguments
     ///
-    /// * `line` - The line to check.
+    /// * `line` - The line to check. **WARNING:** We assume 1 rule per line.
     ///
     ///   **Note:** If a URL (e.g `https://example.org/`) is given, the sub-domain
     ///   will be used to determine if the line has been whitelisted.
