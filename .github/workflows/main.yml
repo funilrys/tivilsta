@@ -61,7 +61,7 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Lint Package
-        run: clippy --all-features
+        run: cargo clippy --all-features
 
   crates_publish:
     needs: [lint_pkg, test_pkg]
