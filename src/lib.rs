@@ -126,15 +126,11 @@ impl Ruler {
     }
 
     fn reduce(&self, element: &String) -> String {
-        let result;
-
-        if element.starts_with("www.") {
-            result = element[4..].to_string()
+        if let Some(stripped) = element.strip_prefix("www.") {
+            stripped.to_string()
         } else {
-            result = element.to_string();
+            element.to_string()
         }
-
-        result
     }
 
     fn extensions() -> Vec<String> {
@@ -149,7 +145,7 @@ impl Ruler {
         extensions
     }
 
-    fn search_keys(&mut self, record: &String) -> (String, String) {
+    fn search_keys(&mut self, record: &str) -> (String, String) {
         let common_search_key = record.chars().take(4).collect::<String>();
         let ends_search_key = record
             .chars()
@@ -272,7 +268,7 @@ impl Ruler {
         self.compiled_regex = Regex::new(&self.regex[..]).unwrap();
     }
 
-    fn parse_all(&mut self, line: &String) -> bool {
+    fn parse_all(&mut self, line: &str) -> bool {
         let record: String;
 
         if line.starts_with("ALL ") {
@@ -283,12 +279,12 @@ impl Ruler {
             return false;
         }
 
-        if record.starts_with('.') {
+        if let Some(stripped) = record.strip_prefix('.') {
             if record.matches('.').count() > 1 {
                 if self.settings.handle_complement {
-                    self.push_strict(&format!("www.{}", record[1..].to_string()));
+                    self.push_strict(&format!("www.{}", stripped));
                 }
-                self.push_strict(&record[1..].to_string());
+                self.push_strict(&stripped.to_string());
             }
             self.push_ends(&record);
         } else {
@@ -298,7 +294,7 @@ impl Ruler {
         true
     }
 
-    fn unparse_all(&mut self, line: &String) -> bool {
+    fn unparse_all(&mut self, line: &str) -> bool {
         let record: String;
 
         if line.starts_with("ALL ") {
@@ -309,12 +305,12 @@ impl Ruler {
             return false;
         }
 
-        if record.starts_with('.') {
+        if let Some(stripped) = record.strip_prefix('.') {
             if record.matches('.').count() > 1 {
                 if self.settings.handle_complement {
-                    self.pull_strict(&format!("www.{}", record[1..].to_string()));
+                    self.pull_strict(&format!("www.{}", stripped));
                 }
-                self.pull_strict(&record[1..].to_string());
+                self.pull_strict(&stripped.to_string());
             }
             self.pull_ends(&record);
         } else {
@@ -324,7 +320,7 @@ impl Ruler {
         true
     }
 
-    fn parse_root_zone_db(&mut self, line: &String) -> bool {
+    fn parse_root_zone_db(&mut self, line: &str) -> bool {
         let mut record: String;
 
         if line.starts_with("RZD ") {
@@ -354,7 +350,7 @@ impl Ruler {
         true
     }
 
-    fn unparse_root_zone_db(&mut self, line: &String) -> bool {
+    fn unparse_root_zone_db(&mut self, line: &str) -> bool {
         let mut record: String;
 
         if line.starts_with("RZD ") {
@@ -384,7 +380,7 @@ impl Ruler {
         true
     }
 
-    fn parse_regex(&mut self, line: &String) -> bool {
+    fn parse_regex(&mut self, line: &str) -> bool {
         let record: String;
 
         if line.starts_with("REG ") {
@@ -400,7 +396,7 @@ impl Ruler {
         true
     }
 
-    fn unparse_regex(&mut self, line: &String) -> bool {
+    fn unparse_regex(&mut self, line: &str) -> bool {
         let record: String;
 
         if line.starts_with("REG ") {
@@ -417,13 +413,11 @@ impl Ruler {
     }
 
     fn parse_plain(&mut self, line: &String) -> bool {
-        let record: String;
-
-        if self.settings.handle_complement && line.starts_with("www.") {
-            record = line.replacen("www.", "", 1).trim().to_string();
+        let record: String = if self.settings.handle_complement && line.starts_with("www.") {
+            line.replacen("www.", "", 1).trim().to_string()
         } else {
-            record = line.to_string();
-        }
+            line.to_string()
+        };
 
         self.push_strict(&record);
 
@@ -650,9 +644,9 @@ impl Ruler {
 
         let separator;
 
-        let regex_ignore = Regex::new(r#"localhost$|localdomain$|local$|broadcasthost$|0\.0\.0\.0$|allhosts$|allnodes$|allrouters$|localnet$|loopback$|mcastprefix$"#).unwrap();
+        let regex_ignore = Regex::new(r"localhost$|localdomain$|local$|broadcasthost$|0\.0\.0\.0$|allhosts$|allnodes$|allrouters$|localnet$|loopback$|mcastprefix$").unwrap();
 
-        if line.is_empty() || line.starts_with("#") || regex_ignore.is_match(&line[..]).unwrap() {
+        if line.is_empty() || line.starts_with('#') || regex_ignore.is_match(&line[..]).unwrap() {
             return line.clone();
         }
 
@@ -670,8 +664,8 @@ impl Ruler {
             let subjects: &str;
             let mut comment = "";
 
-            if line.contains("#") {
-                (subjects, comment) = line.split_once("#").unwrap();
+            if line.contains('#') {
+                (subjects, comment) = line.split_once('#').unwrap();
             } else {
                 subjects = line;
             }
@@ -684,8 +678,8 @@ impl Ruler {
                     continue;
                 }
 
-                let idnazed = if data.contains("#") {
-                    let (element, comment) = data.split_once("#").unwrap();
+                let idnazed = if data.contains('#') {
+                    let (element, comment) = data.split_once('#').unwrap();
                     let idnazed_line =
                         format!("{} #{}", self.idnaze_subject(&element.to_string()), comment);
 
@@ -726,7 +720,7 @@ impl Ruler {
             return false;
         }
 
-        let fline = utils::extract_netloc(&line);
+        let fline = utils::extract_netloc(line);
 
         let (common_skey, ends_skey) = self.search_keys(&self.reduce(&fline));
 

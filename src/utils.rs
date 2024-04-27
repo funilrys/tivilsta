@@ -151,15 +151,15 @@ pub fn extract_netloc(data: &String) -> String {
     } else if !parsed_url.netloc.is_empty() {
         result = parsed_url.netloc.as_str()
     } else {
-        result = &data.as_str()
+        result = data.as_str()
     }
 
     if result.contains("//") {
         result = result.split("//").next().unwrap()
     }
 
-    if result.contains("/") {
-        result = result.split("/").next().unwrap()
+    if result.contains('/') {
+        result = result.split('/').next().unwrap()
     }
 
     result.to_string()
