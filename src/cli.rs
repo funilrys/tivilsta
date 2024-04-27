@@ -225,7 +225,7 @@ impl CLIHandler {
         let src = BufReader::new(&self.source);
 
         for line in src.lines() {
-            let line = line.unwrap();
+            let line = self.ruler.idnaze_line(&line.unwrap());
 
             if self.ruler.is_whitelisted(&line) {
                 continue;

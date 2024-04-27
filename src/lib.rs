@@ -32,13 +32,13 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 #[derive(Debug)]
-pub struct RulerSettings {
+struct RulerSettings {
     handle_complement: bool,
     extensions: Vec<String>,
 }
 
 #[derive(Debug)]
-pub struct RulerTmps {
+struct RulerTmps {
     downloaded_files: Vec<String>,
 }
 
@@ -459,10 +459,13 @@ impl Ruler {
             return;
         }
 
-        let _ = self.parse_all(line)
-            || self.parse_regex(line)
-            || self.parse_root_zone_db(line)
-            || self.parse_plain(line);
+        let idnazed_line = self.idnaze_line(line);
+        println!("REE {:?}", idnazed_line);
+
+        let _ = self.parse_all(&idnazed_line)
+            || self.parse_regex(&idnazed_line)
+            || self.parse_root_zone_db(&idnazed_line)
+            || self.parse_plain(&idnazed_line);
     }
 
     /// Parses the given Vector of Strings into the ruler.
@@ -587,6 +590,121 @@ impl Ruler {
         }
 
         self.unparse_file(real_path.as_str());
+    }
+
+    /// IDNAze the given `subject`.
+    ///
+    /// # Arguments
+    ///
+    /// * `subject` - The subject to IDNAze.
+    ///
+    /// # Returns
+    ///
+    /// The IDNAzed subject.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use tivilsta::Ruler;
+    ///
+    /// let mut ruler = Ruler::new(false);
+    ///
+    /// let subject = String::from("www.äxample.org");
+    ///
+    /// assert_eq!(ruler.idnaze_subject(&subject), "www.xn--xample-9ta.org");
+    /// ```
+    pub fn idnaze_subject(&mut self, subject: &String) -> String {
+        match idna::domain_to_ascii(subject.as_str()) {
+            Ok(result) => result,
+            Err(_) => subject.to_string(),
+        }
+    }
+
+    /// IDNAze the given `line`.
+    ///
+    /// # Arguments
+    ///
+    /// * `line` - The line to IDNAze.
+    ///
+    /// # Returns
+    ///
+    /// The IDNAzed line.
+    ///
+    /// # Example
+    ///
+    /// This example shows how to IDNAze a line, where the line contains a comment.
+    /// In such cases, the comment will be kept as is.
+    ///
+    /// ```rust
+    /// use tivilsta::Ruler;
+    ///
+    /// let mut ruler = Ruler::new(false);
+    ///
+    /// let line = String::from("www.äxample.org # äxample.org");
+    ///
+    /// assert_eq!(ruler.idnaze_line(&line), "www.xn--xample-9ta.org # äxample.org");
+    /// ```
+    pub fn idnaze_line(&mut self, line: &String) -> String {
+        let tab = "\t";
+        let space = " ";
+
+        let separator;
+
+        let regex_ignore = Regex::new(r#"localhost$|localdomain$|local$|broadcasthost$|0\.0\.0\.0$|allhosts$|allnodes$|allrouters$|localnet$|loopback$|mcastprefix$"#).unwrap();
+
+        if line.is_empty() || line.starts_with("#") || regex_ignore.is_match(&line[..]).unwrap() {
+            return line.clone();
+        }
+
+        if line.contains(tab) {
+            separator = tab
+        } else if line.contains(space) {
+            separator = space
+        } else {
+            separator = ""
+        }
+
+        if !separator.is_empty() {
+            let mut idnazed_data: Vec<String> = Vec::new();
+
+            let subjects: &str;
+            let mut comment = "";
+
+            if line.contains("#") {
+                (subjects, comment) = line.split_once("#").unwrap();
+            } else {
+                subjects = line;
+            }
+
+            let mut splitted_subject: Vec<&str> = subjects.split(separator).collect();
+
+            for data in splitted_subject.iter_mut() {
+                if data.is_empty() || regex_ignore.is_match(data).unwrap() {
+                    idnazed_data.push(data.to_string());
+                    continue;
+                }
+
+                let idnazed = if data.contains("#") {
+                    let (element, comment) = data.split_once("#").unwrap();
+                    let idnazed_line =
+                        format!("{} #{}", self.idnaze_subject(&element.to_string()), comment);
+
+                    idnazed_line
+                } else {
+                    self.idnaze_subject(&data.to_string())
+                };
+
+                idnazed_data.push(idnazed);
+            }
+
+            if !comment.is_empty() {
+                return idnazed_data.join(separator) + "#" + comment;
+            }
+
+            return idnazed_data.join(separator);
+        }
+
+        self.idnaze_subject(line)
     }
 
     /// Checks the given `line` against the rules.
@@ -722,6 +840,61 @@ mod tests {
             ruler.search_keys(&"example.example".to_string()),
             ("exam".to_string(), "ple".to_string())
         )
+    }
+
+    #[test]
+    fn test_idnaze_subject() {
+        let mut ruler = Ruler::new(false);
+
+        assert_eq!(
+            ruler.idnaze_subject(&"www.äxample.org".to_string()),
+            "www.xn--xample-9ta.org".to_string()
+        );
+
+        assert_eq!(
+            ruler.idnaze_subject(&"www.example.org".to_string()),
+            "www.example.org".to_string()
+        );
+    }
+
+    #[test]
+    fn test_idnaze_line() {
+        let mut ruler = Ruler::new(false);
+
+        assert_eq!(
+            ruler.idnaze_line(&"www.äxample.org".to_string()),
+            "www.xn--xample-9ta.org".to_string()
+        );
+
+        assert_eq!(
+            ruler.idnaze_line(&"www.example.org".to_string()),
+            "www.example.org".to_string()
+        );
+
+        assert_eq!(
+            ruler.idnaze_line(&"www.example.org # example.org".to_string()),
+            "www.example.org # example.org".to_string()
+        );
+
+        assert_eq!(
+            ruler.idnaze_line(&"www.example.org # äxample.org".to_string()),
+            "www.example.org # äxample.org".to_string()
+        );
+
+        assert_eq!(
+            ruler.idnaze_line(&"www.example.org # äxample.org # example.org".to_string()),
+            "www.example.org # äxample.org # example.org".to_string()
+        );
+
+        assert_eq!(
+            ruler.idnaze_line(&"www.example.org       # äxample.org # example.org".to_string()),
+            "www.example.org       # äxample.org # example.org".to_string()
+        );
+
+        assert_eq!(
+            ruler.idnaze_line(&"www.äxample.org # äxample.org # example.org #".to_string()),
+            "www.xn--xample-9ta.org # äxample.org # example.org #".to_string()
+        );
     }
 
     #[test]
