@@ -21,16 +21,10 @@ jobs:
         name: Clone repository
 
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Check Package
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo check
 
   test_pkg:
     needs: [check_pkg]
@@ -43,16 +37,10 @@ jobs:
         name: Clone repository
 
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Test Package
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        run: cargo test --all-features
 
   lint_pkg:
     needs: [check_pkg]
@@ -65,24 +53,15 @@ jobs:
         name: Clone repository
 
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
+          components: clippy, rustfmt
 
       - name: Check Package Format
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check
 
       - name: Lint Package
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+        run: clippy --all-features
 
   crates_publish:
     needs: [lint_pkg, test_pkg]
@@ -97,20 +76,13 @@ jobs:
         name: Clone repository
 
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: login
-          args: ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Login to crates.io
+        run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: publish
+      - name: Publish Package
+        run: cargo publish
 
   github_release:
     needs: [crates_publish]
@@ -146,12 +118,9 @@ jobs:
         name: Clone repository
 
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          target: ${{ matrix.rs_target }}
+          targets: ${{ matrix.rs_target }}
 
       - name: Install APT dependencies.
         if: matrix.rs_target == 'x86_64-unknown-linux-musl'
@@ -159,10 +128,7 @@ jobs:
           sudo apt install -y musl-tools
 
       - name: Build for target
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --target ${{ matrix.rs_target }}
+        run: cargo build --release --target ${{ matrix.rs_target }}
 
       - name: Prepare build artifacts for Windows
         if: matrix.os == 'windows-latest'
