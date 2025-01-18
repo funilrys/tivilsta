@@ -1,11 +1,10 @@
-# Tivilsta - A different whitelisting mechanism for blocklist maintainers
+# Tivilsta - A different whitelisting mechanism for blocklist maintainers <!-- omit in toc -->
 
 Tivilsta aims to provide a different and in our view better whitelisting mechanism
 for blocklist maintainers.
 
 # Table of Content
 
-- [Tivilsta - A different whitelisting mechanism for blocklist maintainers](#tivilsta---a-different-whitelisting-mechanism-for-blocklist-maintainers)
 - [Table of Content](#table-of-content)
 - [Installation](#installation)
 - [The Format](#the-format)
