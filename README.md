@@ -5,6 +5,8 @@ for blocklist maintainers.
 
 # Table of Content
 
+- [Tivilsta - A different whitelisting mechanism for blocklist maintainers](#tivilsta---a-different-whitelisting-mechanism-for-blocklist-maintainers)
+- [Table of Content](#table-of-content)
 - [Installation](#installation)
 - [The Format](#the-format)
   - [Introduction](#introduction)
@@ -13,7 +15,7 @@ for blocklist maintainers.
     - [`ALL `: The "ends-with" rule](#all--the-ends-with-rule)
     - [`REG `: The regular expression rule](#reg--the-regular-expression-rule)
     - [`RZD `: The broad and powerful rule](#rzd--the-broad-and-powerful-rule)
-- [Usage & Examples](#usage--examples)
+- [Usage \& Examples](#usage--examples)
   - [Library](#library)
   - [CLI](#cli)
     - [Overview](#overview)
@@ -243,7 +245,7 @@ example.org
 # License
 
 ```
-Copyright (c) 2022, 2023, 2024 Nissar Chababy
+Copyright (c) 2022, 2023, 2024, 2025 Nissar Chababy
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
