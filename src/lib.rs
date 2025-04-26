@@ -454,7 +454,6 @@ impl Ruler {
         }
 
         let idnazed_line = self.idnaze_line(line);
-        println!("REE {:?}", idnazed_line);
 
         let _ = self.parse_all(&idnazed_line)
             || self.parse_regex(&idnazed_line)
@@ -720,43 +719,52 @@ impl Ruler {
             return false;
         }
 
-        let fline = utils::extract_netloc(line);
+        let mut flines: Vec<String> = vec![utils::extract_netloc(line)];
 
-        let (common_skey, ends_skey) = self.search_keys(&self.reduce(&fline));
-
-        let mut matching_state;
-
-        match self.strict.entry(common_skey.to_string()) {
-            Entry::Occupied(entry) => matching_state = entry.get().contains(&fline),
-            Entry::Vacant(_) => matching_state = false,
+        if line.starts_with("http://") || line.starts_with("https://") {
+            flines.push(line.to_string());
         }
 
-        if matching_state {
-            return true;
-        }
+        for fline in flines.iter() {
+            let (common_skey, ends_skey) = self.search_keys(&self.reduce(&fline));
 
-        match self.present.entry(common_skey) {
-            Entry::Occupied(entry) => matching_state = entry.get().contains(&fline),
-            Entry::Vacant(_) => matching_state = false,
-        }
+            let mut matching_state;
 
-        if matching_state {
-            return true;
-        }
-
-        match self.ends.entry(ends_skey) {
-            Entry::Occupied(entry) => {
-                let mut matching = entry.get().iter().map(|x| fline.ends_with(x)).peekable();
-                matching_state = *matching.peek().unwrap_or(&false);
+            match self.strict.entry(common_skey.to_string()) {
+                Entry::Occupied(entry) => matching_state = entry.get().contains(fline),
+                Entry::Vacant(_) => matching_state = false,
             }
-            Entry::Vacant(_) => matching_state = false,
-        }
 
-        if matching_state {
-            return true;
-        }
+            if matching_state {
+                return true;
+            }
 
-        !self.regex.is_empty() && self.compiled_regex.is_match(&fline[..]).unwrap()
+            match self.present.entry(common_skey) {
+                Entry::Occupied(entry) => matching_state = entry.get().contains(fline),
+                Entry::Vacant(_) => matching_state = false,
+            }
+
+            if matching_state {
+                return true;
+            }
+
+            match self.ends.entry(ends_skey) {
+                Entry::Occupied(entry) => {
+                    let mut matching = entry.get().iter().map(|x| fline.ends_with(x)).peekable();
+                    matching_state = *matching.peek().unwrap_or(&false);
+                }
+                Entry::Vacant(_) => matching_state = false,
+            }
+
+            if matching_state {
+                return true;
+            }
+
+            if !self.regex.is_empty() {
+                return self.compiled_regex.is_match(&fline[..]).unwrap();
+            }
+        }
+        false
     }
 }
 
