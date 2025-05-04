@@ -1,6 +1,6 @@
 [package]
 name = "tivilsta"
-version = "0.5.2"
+version = "0.5.3"
 description = "A different whitelisting mechanism for blocklist maintainers."
 
 categories = ["command-line-utilities", "parser-implementations"]
