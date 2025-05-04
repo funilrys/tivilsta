@@ -27,4 +27,5 @@ fancy-regex = "0.13"
 rand = "0.8"
 urlparse = "0.7"
 idna = "0.5"
+num_cpus = "1.0"
 

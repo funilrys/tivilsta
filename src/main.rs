@@ -74,13 +74,30 @@ pub struct Arguments {
     /// Note: Complements are `www.example.org` if `example.org` is given - and
     /// vice-versa.
     allow_complements: bool,
+
+    #[clap(short, long)]
+    /// Whether we should process the given information with multithreading.
+    /// This is useful for large files.
+    /// Note: This is not recommended for small files.
+    multithread: bool,
+
+    #[clap(short = 't', long, required = false)]
+    /// The maximum number of threads to use.
+    /// Note:
+    ///   This is not recommended for small files.
+    ///   If not given, the number of threads will be set to the number of CPU cores - 2.
+    max_threads: Option<usize>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Arguments::parse();
     let mut handler = CLIHandler::new(args);
 
-    handler.cleanup();
+    if handler.multithread {
+        handler.multithreaded_cleanup();
+    } else {
+        handler.cleanup();
+    }
 
     Ok(())
 }

@@ -142,6 +142,7 @@ pub fn to_regex_string(extensions: Result<Vec<String>, Box<dyn std::error::Error
 ///
 /// A string with the extracted network location.
 ///
+#[allow(dead_code)]
 pub fn extract_netloc(data: &String) -> String {
     let parsed_url = urlparse(data);
     let mut result;

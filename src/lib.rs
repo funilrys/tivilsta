@@ -23,6 +23,7 @@ mod utils;
 
 use crate::data::iana;
 use crate::data::psl;
+use crate::utils::{download_file, extract_netloc};
 use fancy_regex::Regex;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
@@ -31,18 +32,18 @@ use std::fs;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct RulerSettings {
     handle_complement: bool,
     extensions: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct RulerTmps {
     downloaded_files: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Ruler {
     strict: HashMap<String, HashSet<String>>,
     ends: HashMap<String, HashSet<String>>,
@@ -504,7 +505,7 @@ impl Ruler {
     ///
     /// Nothing.
     pub fn parse_link(&mut self, url: &str) {
-        let (real_path, downloaded) = utils::download_file(&url.to_string());
+        let (real_path, downloaded) = download_file(&url.to_string());
 
         if downloaded {
             self.tmps.downloaded_files.push(real_path.clone());
@@ -576,7 +577,7 @@ impl Ruler {
     ///
     /// Nothing.
     pub fn unparse_link(&mut self, url: &str) {
-        let (real_path, downloaded) = utils::download_file(&url.to_string());
+        let (real_path, downloaded) = download_file(&url.to_string());
 
         if downloaded {
             self.tmps.downloaded_files.push(real_path.clone());
@@ -719,7 +720,7 @@ impl Ruler {
             return false;
         }
 
-        let mut flines: Vec<String> = vec![utils::extract_netloc(line)];
+        let mut flines: Vec<String> = vec![extract_netloc(line)];
 
         if line.starts_with("http://") || line.starts_with("https://") {
             flines.push(line.to_string());

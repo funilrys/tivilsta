@@ -170,17 +170,19 @@ Example for argument with multiple values or files:
 - `tivilsta -s test.list --reg reg1.list --reg reg2.list`
 
 
-| Argument              | Required           | Multiple Values Allowed | Description                                                                                                                             |
-| --------------------- | ------------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `--source` \| `-s`    | :white_check_mark: | :x:                     | The source file. In other word the block list to process.                                                                               |
-| `--whitelist` \| `-w` | :white_check_mark: | :white_check_mark:      | The whitelist schema file-s. Each line will be processed **AS IT IS.**                                                                  |
-| `--all`               | :x:                | :white_check_mark:      | The whitelist schema file-s. Each line will be prefixed with the `ALL ` flag.                                                           |
-| `--allow-complements` | :x:                | :x:                     | Whether we should consider complements when whitelisting. A complement is `www.example.org` when `example.org` is given and vice-versa. |
-| `--help` \| `-h`      | :x:                | :x:                     | Prints the help message and exit.                                                                                                       |
-| `--output` \| `-o`    | :x:                | :x:                     | The output file. By default the tool will output to `stdout`. You can use this argument to explicitly set the output file.              |
-| `--reg`               | :x:                | :white_check_mark:      | The whitelist schema file-s. Each line will be prefixed with the `REG ` flag.                                                           |
-| `--rzd`               | :x:                | :white_check_mark:      | The whitelist schema file-s. Each line will be prefixed with the `RDZ ` flag.                                                           |
-| `--version` \| `-V`   | :x:                | :x:                     | Prints the version and exit.                                                                                                            |
+| Argument                | Required           | Multiple Values Allowed | Description                                                                                                                                                         |
+| ----------------------- | ------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--source` \| `-s`      | :white_check_mark: | :x:                     | The source file. In other word the block list to process.                                                                                                           |
+| `--whitelist` \| `-w`   | :white_check_mark: | :white_check_mark:      | The whitelist schema file-s. Each line will be processed **AS IT IS.**                                                                                              |
+| `--all`                 | :x:                | :white_check_mark:      | The whitelist schema file-s. Each line will be prefixed with the `ALL ` flag.                                                                                       |
+| `--allow-complements`   | :x:                | :x:                     | Whether we should consider complements when whitelisting. A complement is `www.example.org` when `example.org` is given and vice-versa.                             |
+| `--help` \| `-h`        | :x:                | :x:                     | Prints the help message and exit.                                                                                                                                   |
+| `--output` \| `-o`      | :x:                | :x:                     | The output file. By default the tool will output to `stdout`. You can use this argument to explicitly set the output file.                                          |
+| `--reg`                 | :x:                | :white_check_mark:      | The whitelist schema file-s. Each line will be prefixed with the `REG ` flag.                                                                                       |
+| `--rzd`                 | :x:                | :white_check_mark:      | The whitelist schema file-s. Each line will be prefixed with the `RDZ ` flag.                                                                                       |
+| `-m` \| `--multithread` | :x:                | :x:                     | Whether we should process the given information with multithreading. This is useful for large files. Note: This is not recommended for small files.                 |
+| `--max-threads` \| `-t` | :x:                | :x:                     | The maximum number of threads to use. Note: This is not recommended for small files. If not given, the number of threads will be set to the number of CPU cores - 2 |
+| `--version` \| `-V`     | :x:                | :x:                     | Prints the version and exit.                                                                                                                                        |
 
 ### Help Output
 
@@ -191,36 +193,43 @@ USAGE:
     tivilsta [OPTIONS] --source <SOURCE> --whitelist <WHITELIST>...
 
 OPTIONS:
-        --all <ALL>...                One or multiple space separated whitelisting schema in form of
-                                      a file path or URL to read. Each rule/line will be
-                                      automatically prefixed with the `ALL ` flag while parsing.
-                                      Note: When using a URL, the file will be downloaded and stored
-                                      in a temporary file that will be deleted when the program
-                                      exits
-        --allow-complements           Whether we consider complements while parsing rules. Note:
-                                      Complements are `www.example.org` if `example.org` is given -
-                                      and vice-versa
-    -h, --help                        Print help information
-    -o, --output <OUTPUT>             The output file
-        --reg <REG>...                One or multiple space separated whitelisting schema in form of
-                                      a file path or URL to read. Each rule/line will be
-                                      automatically prefixed with the `REG ` flag while parsing.
-                                      Note: When using a URL, the file will be downloaded and stored
-                                      in a temporary file that will be deleted when the program
-                                      exits
-        --rzd <RZD>...                One or multiple space separated whitelisting schema in form of
-                                      a file path or URL to read. Each rule/line will be
-                                      automatically prefixed with the `RZD ` flag while parsing.
-                                      Note: When using a URL, the file will be downloaded and stored
-                                      in a temporary file that will be deleted when the program
-                                      exits
-    -s, --source <SOURCE>             The file to cleanup
-    -V, --version                     Print version information
-    -w, --whitelist <WHITELIST>...    One or multiple space separated whitelisting schema in form of
-                                      a file path or URL. Each rule/line will be parsed as-it-is.
-                                      Note: When using a URL, the file will be downloaded and stored
-                                      in a temporary file that will be deleted when the program
-                                      exits
+        --all <ALL>...                 One or multiple space separated whitelisting schema in form
+                                       of a file path or URL to read. Each rule/line will be
+                                       automatically prefixed with the `ALL ` flag while parsing.
+                                       Note: When using a URL, the file will be downloaded and
+                                       stored in a temporary file that will be deleted when the
+                                       program exits
+        --allow-complements            Whether we consider complements while parsing rules. Note:
+                                       Complements are `www.example.org` if `example.org` is given -
+                                       and vice-versa
+    -h, --help                         Print help information
+    -m, --multithread                  Whether we should process the given information with
+                                       multithreading. This is useful for large files. Note: This is
+                                       not recommended for small files
+    -o, --output <OUTPUT>              The output file
+        --reg <REG>...                 One or multiple space separated whitelisting schema in form
+                                       of a file path or URL to read. Each rule/line will be
+                                       automatically prefixed with the `REG ` flag while parsing.
+                                       Note: When using a URL, the file will be downloaded and
+                                       stored in a temporary file that will be deleted when the
+                                       program exits
+        --rzd <RZD>...                 One or multiple space separated whitelisting schema in form
+                                       of a file path or URL to read. Each rule/line will be
+                                       automatically prefixed with the `RZD ` flag while parsing.
+                                       Note: When using a URL, the file will be downloaded and
+                                       stored in a temporary file that will be deleted when the
+                                       program exits
+    -s, --source <SOURCE>              The file to cleanup
+    -t, --max-threads <MAX_THREADS>    The maximum number of threads to use. Note: This is not
+                                       recommended for small files. If not given, the number of
+                                       threads will be set to the number of CPU cores - 2
+    -V, --version                      Print version information
+    -w, --whitelist <WHITELIST>...     One or multiple space separated whitelisting schema in form
+                                       of a file path or URL. Each rule/line will be parsed
+                                       as-it-is. Note: When using a URL, the file will be downloaded
+                                       and stored in a temporary file that will be deleted when the
+                                       program exits
+
 ```
 
 
